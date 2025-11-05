@@ -1,5 +1,20 @@
 <resources>
-    <string name="app_name">baget mamanger 2</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="app_name">Budget Manager</string>
+    <string name="title_budget_manager">Budget Manager</string>
+    <string name="title_analytics">Analytics</string>
+    <string name="action_mode">Mode</string>
+    <string name="action_graph">Graph</string>
+    <string name="label_total_budget">Total budget</string>
+    <string name="hint_tap_add_long_press_edit">Tap to add; long-press to edit/reset</string>
+    <string name="chip_day">Day</string>
+    <string name="chip_month">Month</string>
+    <string name="chip_year">Year</string>
+    <string name="btn_custom_range">Custom range</string>
+    <string name="chip_all">All</string>
+    <string name="status_selected_default">Selected point and result</string>
+    <string name="action_delete">Delete</string>
+    <string name="dialog_delete_category_title">Delete category</string>
+    <string name="dialog_delete_category_message">Delete %1$s and its expenses?</string>
 </resources>

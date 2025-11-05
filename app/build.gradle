@@ -3,6 +3,40 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        release {
+            // Placeholder signing config. Set credentials via environment variables or Gradle properties.
+            // Option 1: Environment variables (recommended for CI)
+            //   BUDGET_KEYSTORE, BUDGET_KEYSTORE_PASSWORD, BUDGET_KEY_ALIAS, BUDGET_KEY_PASSWORD
+            // Option 2: gradle.properties (LOCAL ONLY - do not commit secrets)
+            //   storeFile=/absolute/path/to/keystore.jks
+            //   storePassword=your-store-pass
+            //   keyAlias=your-alias
+            //   keyPassword=your-key-pass
+            def envStore = System.getenv("BUDGET_KEYSTORE")
+            def envStorePass = System.getenv("BUDGET_KEYSTORE_PASSWORD")
+            def envAlias = System.getenv("BUDGET_KEY_ALIAS")
+            def envKeyPass = System.getenv("BUDGET_KEY_PASSWORD")
+
+            def propStore = project.findProperty("storeFile")
+            def propStorePass = project.findProperty("storePassword")
+            def propAlias = project.findProperty("keyAlias")
+            def propKeyPass = project.findProperty("keyPassword")
+
+            if (envStore || propStore) {
+                storeFile file(envStore ?: propStore)
+            }
+            if (envStorePass || propStorePass) {
+                storePassword (envStorePass ?: propStorePass)
+            }
+            if (envAlias || propAlias) {
+                keyAlias (envAlias ?: propAlias)
+            }
+            if (envKeyPass || propKeyPass) {
+                keyPassword (envKeyPass ?: propKeyPass)
+            }
+        }
+    }
     namespace 'com.example.bagetmamanger2'
     compileSdk 36 // ✅ Updated from 34 → 36
 
@@ -10,17 +44,20 @@ android {
         applicationId "com.example.bagetmamanger2"
         minSdk 28
         targetSdk 36 // ✅ Match with compileSdk
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
+
     }
 
     compileOptions {

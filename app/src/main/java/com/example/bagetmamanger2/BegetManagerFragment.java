@@ -6,17 +6,29 @@ import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.ArrayAdapter;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import android.widget.Toast;
+import android.widget.ImageButton;
+import androidx.appcompat.widget.PopupMenu;
+
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.android.material.color.MaterialColors;
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.text.NumberFormat;
+import java.util.Currency;
+import java.util.Locale;
 import java.util.Map;
 
 public class BegetManagerFragment extends Fragment {
@@ -24,14 +36,10 @@ public class BegetManagerFragment extends Fragment {
     private TextView totalBudgetText, biggestExpenseText;
     private TextView hideText, showText; // Hide and Show toggle
     private double totalBudget = 0.0;
-    private boolean isHidden = true; // ✅ Hidden by default
+    private boolean isHidden = true; // Hidden by default
 
-    private CardView[] cards;
-    private TextView[] cardTexts;
-    private String[] categories = {
-            "Relationship", "Fitness", "Tech", "Social", "Unexpected",
-            "Transport", "DayTravel", "Church"
-    };
+    private LinearLayout categoriesContainer;
+    private MaterialButton addCategoryButton;
 
     private BudgetDbHelper dbHelper;
 
@@ -51,57 +59,38 @@ public class BegetManagerFragment extends Fragment {
         biggestExpenseText = view.findViewById(R.id.biggestExpenseText);
         hideText = view.findViewById(R.id.hideText);
         showText = view.findViewById(R.id.showText);
+        categoriesContainer = view.findViewById(R.id.categoriesContainer);
+        addCategoryButton = view.findViewById(R.id.addCategoryButton);
 
         totalBudget = dbHelper.getTotalBudget();
 
-        // ✅ Start with total budget hidden
+        // Start with total budget hidden
         totalBudgetText.setText("****");
         hideText.setVisibility(View.GONE);
         showText.setVisibility(View.VISIBLE);
 
         setupHideShowButtons();
 
-        int[] cardResIds = {
-                R.id.relationshipCard, R.id.fitnessCard, R.id.techCard, R.id.socialCard,
-                R.id.unexpectedCard, R.id.transportCard, R.id.dayTravelCard, R.id.churchDonationCard
-        };
-
-        String[] cardTextIds = {
-                "relationshipInput", "fitnessInput", "techInput", "socialInput",
-                "unexpectedInput", "transportInput", "dayTravelInput", "churchDonationInput"
-        };
-
-        cards = new CardView[categories.length];
-        cardTexts = new TextView[categories.length];
-
-        for (int i = 0; i < categories.length; i++) {
-            int index = i;
-            cards[i] = view.findViewById(cardResIds[i]);
-            int textResId = getResources().getIdentifier(cardTextIds[i], "id", requireContext().getPackageName());
-            cardTexts[i] = view.findViewById(textResId);
-
-            double savedAmount = dbHelper.getAmount(categories[i]);
-            updateCardText(index, savedAmount);
-
-            cards[i].setOnClickListener(v -> showExpenseInputDialog(index));
-            cards[i].setOnLongClickListener(v -> {
-                showHistoryDialog(index);
-                return true;
-            });
+        // Add Category button
+        if (addCategoryButton != null) {
+            addCategoryButton.setOnClickListener(v -> showAddCategoryDialog());
         }
 
-        CardView totalCard = view.findViewById(R.id.totalBegetCard);
+        // Total budget card interactions
+        View totalCard = view.findViewById(R.id.totalBegetCard);
         totalCard.setOnClickListener(v -> showTotalInputDialog());
         totalCard.setOnLongClickListener(v -> {
             showTotalBudgetEditDialog();
             return true;
         });
 
+        // Initial render
+        renderCategories();
         updateBiggestExpense();
         return view;
     }
 
-    // 🔹 Setup Hide/Show Buttons
+    // ---------- UI wiring ----------
     private void setupHideShowButtons() {
         hideText.setOnClickListener(v -> {
             totalBudgetText.setText("****");
@@ -111,11 +100,237 @@ public class BegetManagerFragment extends Fragment {
         });
 
         showText.setOnClickListener(v -> {
-            totalBudgetText.setText(String.format("%.2f", totalBudget));
+            totalBudgetText.setText(String.format(Locale.getDefault(), "%.2f", totalBudget));
             showText.setVisibility(View.GONE);
             hideText.setVisibility(View.VISIBLE);
             isHidden = false;
         });
+    }
+
+    private void renderCategories() {
+        if (categoriesContainer == null) return;
+        categoriesContainer.removeAllViews();
+
+        List<Map<String, Object>> categories = dbHelper.getCategories();
+        for (Map<String, Object> cat : categories) {
+            String name = (String) cat.get("name");
+            double goal = (double) cat.get("goal");
+            double spent = dbHelper.getAmount(name);
+
+            categoriesContainer.addView(createCategoryCard(name, spent, goal));
+        }
+    }
+
+    private View createCategoryCard(String name, double spent, double goal) {
+        // Card
+        MaterialCardView card = new MaterialCardView(requireContext());
+        LinearLayout.LayoutParams cardLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        cardLp.bottomMargin = dp(12);
+        card.setLayoutParams(cardLp);
+        card.setStrokeWidth(dp(1));
+        card.setRadius(dp(12));
+
+        // Content container
+        LinearLayout content = new LinearLayout(requireContext());
+        content.setOrientation(LinearLayout.VERTICAL);
+        content.setPadding(dp(16), dp(16), dp(16), dp(16));
+
+        // Row: Title + Amount
+        LinearLayout topRow = new LinearLayout(requireContext());
+        topRow.setOrientation(LinearLayout.HORIZONTAL);
+        topRow.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        TextView title = new TextView(requireContext());
+        LinearLayout.LayoutParams titleLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        title.setLayoutParams(titleLp);
+        title.setText(name);
+        title.setTextSize(16);
+        title.setTypeface(title.getTypeface(), android.graphics.Typeface.BOLD);
+
+        TextView amount = new TextView(requireContext());
+        amount.setText(formatAmountAndPercent(spent, goal));
+        amount.setTextSize(15);
+
+        // 3-dot menu button
+        ImageButton menuBtn = new ImageButton(requireContext());
+        LinearLayout.LayoutParams menuLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        menuBtn.setLayoutParams(menuLp);
+        menuBtn.setImageResource(android.R.drawable.ic_menu_more);
+        menuBtn.setBackground(null);
+        menuBtn.setContentDescription("More actions");
+        menuBtn.setOnClickListener(v -> showCategoryMenu(v, name));
+
+        topRow.addView(title);
+        topRow.addView(amount);
+        topRow.addView(menuBtn);
+
+        // Progress bar (only when goal > 0)
+        if (goal > 0) {
+            LinearProgressIndicator progress = new LinearProgressIndicator(requireContext(), null, com.google.android.material.R.attr.linearProgressIndicatorStyle);
+            progress.setIndeterminate(false);
+            progress.setTrackCornerRadius(dp(8));
+            progress.setTrackThickness(dp(6));
+            progress.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            double ratio = spent / goal;
+            int percent = (int) Math.round(ratio * 100.0);
+            int clampedPercent = Math.max(0, Math.min(100, percent));
+            progress.setProgress(clampedPercent);
+
+            TextView progressLabel = new TextView(requireContext());
+            progressLabel.setTextSize(12);
+            progressLabel.setPadding(0, dp(4), 0, 0);
+
+            if (spent > goal) {
+                // Over the goal: color the bar red and show how far off
+                int red = ContextCompat.getColor(requireContext(), R.color.md_theme_error);
+                int track = ContextCompat.getColor(requireContext(), R.color.md_theme_surfaceVariant);
+                progress.setIndicatorColor(red);
+                progress.setTrackColor(track);
+                progressLabel.setTextColor(red);
+
+                double over = spent - goal;
+                double overPct = ((spent - goal) / goal) * 100.0;
+                progressLabel.setText(String.format(Locale.getDefault(), "Over by %s (%.1f%% over)", formatCurrency(over), overPct));
+            } else {
+                // Within goal: use default/on-brand colors, show remaining
+                int primary = ContextCompat.getColor(requireContext(), R.color.md_theme_primary);
+                int track = ContextCompat.getColor(requireContext(), R.color.md_theme_surfaceVariant);
+                int text = ContextCompat.getColor(requireContext(), R.color.md_theme_onSurfaceVariant);
+                progress.setIndicatorColor(primary);
+                progress.setTrackColor(track);
+                progressLabel.setTextColor(text);
+
+                double remaining = goal - spent;
+                progressLabel.setText(String.format(Locale.getDefault(), "Goal: %s — %d%% (Remaining: %s)", formatCurrency(goal), clampedPercent, formatCurrency(remaining)));
+            }
+
+            content.addView(progress);
+            content.addView(progressLabel);
+        }
+
+        // Row: actions
+        LinearLayout actions = new LinearLayout(requireContext());
+        actions.setOrientation(LinearLayout.HORIZONTAL);
+        actions.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        actions.setPadding(0, dp(8), 0, 0);
+
+        MaterialButton btnAdd = new MaterialButton(requireContext(), null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
+        btnAdd.setText("Add expense");
+        btnAdd.setOnClickListener(v -> showExpenseInputDialog(name));
+
+        MaterialButton btnGoal = new MaterialButton(requireContext(), null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
+        btnGoal.setText("Set goal");
+        btnGoal.setOnClickListener(v -> showSetGoalDialog(name, goal));
+
+        MaterialButton btnHist = new MaterialButton(requireContext(), null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
+        btnHist.setText("History");
+        btnHist.setOnClickListener(v -> showHistoryDialog(name));
+
+        MaterialButton btnDel = new MaterialButton(requireContext(), null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
+        btnDel.setText("Delete");
+        btnDel.setOnClickListener(v -> confirmDeleteCategory(name));
+
+        actions.addView(btnAdd);
+        actions.addView(spacer(dp(8)));
+        actions.addView(btnGoal);
+        actions.addView(spacer(dp(8)));
+        actions.addView(btnHist);
+        actions.addView(spacer(dp(8)));
+        actions.addView(btnDel);
+
+        content.addView(topRow);
+        content.addView(actions);
+        card.addView(content);
+
+        // Simple click to add expense as well
+        card.setOnClickListener(v -> showExpenseInputDialog(name));
+
+        return card;
+    }
+
+    private View spacer(int widthDp) {
+        View v = new View(requireContext());
+        v.setLayoutParams(new LinearLayout.LayoutParams(widthDp, 1));
+        return v;
+    }
+
+    private int dp(int dp) {
+        float density = getResources().getDisplayMetrics().density;
+        return (int) (dp * density);
+    }
+
+    // ---------- Dialogs ----------
+    private void showAddCategoryDialog() {
+        LinearLayout layout = new LinearLayout(getContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(dp(16), dp(8), dp(16), 0);
+
+        final EditText nameInput = new EditText(getContext());
+        nameInput.setHint("Category name");
+        layout.addView(nameInput);
+
+        final EditText goalInput = new EditText(getContext());
+        goalInput.setHint("Monthly goal (optional)");
+        goalInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        layout.addView(goalInput);
+
+        new AlertDialog.Builder(getContext())
+                .setTitle("Add Category")
+                .setView(layout)
+                .setPositiveButton("Add", (d, w) -> {
+                    String name = nameInput.getText().toString().trim();
+                    if (name.isEmpty()) return;
+                    double goal = 0;
+                    String g = goalInput.getText().toString().trim();
+                    if (!g.isEmpty()) {
+                        try { goal = Double.parseDouble(g); } catch (Exception ignored) {}
+                    }
+                    long id = dbHelper.addCategory(name, goal);
+                    if (id == -1) {
+                        Toast.makeText(getContext(), "Category already exists", Toast.LENGTH_SHORT).show();
+                    }
+                    renderCategories();
+                    updateBiggestExpense();
+                })
+                .setNegativeButton("Cancel", (d, w) -> d.dismiss())
+                .show();
+    }
+
+    private void confirmDeleteCategory(String name) {
+        new AlertDialog.Builder(getContext())
+                .setTitle(getString(R.string.dialog_delete_category_title))
+                .setMessage(getString(R.string.dialog_delete_category_message, name))
+                .setPositiveButton(getString(R.string.action_delete), (d, w) -> {
+                    dbHelper.deleteCategory(name);
+                    renderCategories();
+                    updateBiggestExpense();
+                })
+                .setNegativeButton("Cancel", (d, w) -> d.dismiss())
+                .show();
+    }
+
+    private void showSetGoalDialog(String name, double currentGoal) {
+        final EditText input = new EditText(getContext());
+        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        input.setText(String.format(Locale.getDefault(), "%.2f", currentGoal));
+
+        new AlertDialog.Builder(getContext())
+                .setTitle("Set goal for " + name)
+                .setView(input)
+                .setPositiveButton("Save", (d, w) -> {
+                    String s = input.getText().toString().trim();
+                    double goal = 0;
+                    if (!s.isEmpty()) try { goal = Double.parseDouble(s); } catch (Exception ignored) {}
+                    dbHelper.updateCategoryGoal(name, goal);
+                    renderCategories();
+                })
+                .setNegativeButton("Cancel", (d, w) -> d.dismiss())
+                .show();
     }
 
     private void showTotalInputDialog() {
@@ -133,7 +348,7 @@ public class BegetManagerFragment extends Fragment {
                 totalBudget += addedValue;
                 dbHelper.addToTotalBudget(addedValue);
                 updateTotalBudgetText();
-                resetCategoryTexts();
+                renderCategories();
             }
         });
 
@@ -147,7 +362,7 @@ public class BegetManagerFragment extends Fragment {
 
         final EditText input = new EditText(getContext());
         input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        input.setText(String.format("%.2f", totalBudget));
+        input.setText(String.format(Locale.getDefault(), "%.2f", totalBudget));
         builder.setView(input);
 
         builder.setPositiveButton("Update", (dialog, which) -> {
@@ -157,7 +372,7 @@ public class BegetManagerFragment extends Fragment {
                 totalBudget = newTotal;
                 dbHelper.updateTotalBudget(newTotal);
                 updateTotalBudgetText();
-                resetCategoryTexts();
+                renderCategories();
             }
         });
 
@@ -165,7 +380,7 @@ public class BegetManagerFragment extends Fragment {
             totalBudget = 0;
             dbHelper.deleteTotalBudget();
             updateTotalBudgetText();
-            resetCategoryTexts();
+            renderCategories();
             biggestExpenseText.setText("Biggest Expense");
         });
 
@@ -173,18 +388,9 @@ public class BegetManagerFragment extends Fragment {
         builder.show();
     }
 
-    // ✅ Refresh category cards
-    private void resetCategoryTexts() {
-        for (int i = 0; i < categories.length; i++) {
-            updateCardText(i, dbHelper.getAmount(categories[i]));
-        }
-        updateBiggestExpense();
-    }
-
-    // ✅ Add expense and subtract from total
-    private void showExpenseInputDialog(int index) {
+    private void showExpenseInputDialog(String categoryName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Enter Expense for " + categories[index]);
+        builder.setTitle("Enter Expense for " + categoryName);
 
         final EditText input = new EditText(getContext());
         input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
@@ -192,31 +398,28 @@ public class BegetManagerFragment extends Fragment {
 
         builder.setPositiveButton("OK", (dialog, which) -> {
             String valueStr = input.getText().toString().trim();
-            if (!valueStr.isEmpty() && totalBudget > 0) {
+            if (!valueStr.isEmpty()) {
                 double value = Double.parseDouble(valueStr);
 
-                if (value > totalBudget) {
+                double current = dbHelper.getTotalBudget();
+                if (current <= 0 || value > current) {
                     new AlertDialog.Builder(getContext())
                             .setTitle("Insufficient Budget")
-                            .setMessage("You don't have enough remaining budget!")
+                            .setMessage("Please add a total budget or enter a smaller amount.")
                             .setPositiveButton("OK", (d, w) -> d.dismiss())
                             .show();
                     return;
                 }
 
-                totalBudget -= value;
-                dbHelper.updateTotalBudget(totalBudget);
+                // Let DB helper subtract from total and insert the expense atomically
+                dbHelper.addExpense(categoryName, value);
+
+                // Refresh in-memory total and UI
+                totalBudget = dbHelper.getTotalBudget();
                 updateTotalBudgetText();
 
-                dbHelper.addExpense(categories[index], value);
-                updateCardText(index, dbHelper.getAmount(categories[index]));
+                renderCategories();
                 updateBiggestExpense();
-            } else if (totalBudget <= 0) {
-                new AlertDialog.Builder(getContext())
-                        .setTitle("No Budget")
-                        .setMessage("Please add a total budget before adding expenses.")
-                        .setPositiveButton("OK", (d, w) -> d.dismiss())
-                        .show();
             }
         });
 
@@ -224,13 +427,12 @@ public class BegetManagerFragment extends Fragment {
         builder.show();
     }
 
-    // ✅ Show expense history
-    private void showHistoryDialog(int index) {
-        List<Map<String, Object>> history = dbHelper.getAllData(categories[index]);
+    private void showHistoryDialog(String categoryName) {
+        List<Map<String, Object>> history = dbHelper.getAllData(categoryName);
         if (history.isEmpty()) {
             new AlertDialog.Builder(getContext())
                     .setTitle("No Data")
-                    .setMessage("No entries for " + categories[index])
+                    .setMessage("No entries for " + categoryName)
                     .setPositiveButton("OK", (d, w) -> d.dismiss())
                     .show();
             return;
@@ -239,26 +441,25 @@ public class BegetManagerFragment extends Fragment {
         ListView listView = new ListView(getContext());
         List<String> displayList = new ArrayList<>();
         for (Map<String, Object> entry : history) {
-            displayList.add(String.format("%.2f - %s", entry.get("amount"), entry.get("date")));
+            displayList.add(String.format(Locale.getDefault(), "%.2f - %s", entry.get("amount"), entry.get("date")));
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(),
-                android.R.layout.simple_list_item_1, displayList);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, displayList);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener((parent, view, position, id) -> {
             int entryId = (int) history.get(position).get("id");
-            showEditDeleteDialog(index, entryId, adapter, position, history);
+            showEditDeleteDialog(categoryName, entryId, adapter, position, history);
         });
 
         new AlertDialog.Builder(getContext())
-                .setTitle(categories[index] + " History")
+                .setTitle(categoryName + " History")
                 .setView(listView)
                 .setPositiveButton("Close", (d, w) -> d.dismiss())
                 .show();
     }
 
-    private void showEditDeleteDialog(int categoryIndex, int entryId,
+    private void showEditDeleteDialog(String categoryName, int entryId,
                                       ArrayAdapter<String> adapter, int position,
                                       List<Map<String, Object>> history) {
 
@@ -274,20 +475,24 @@ public class BegetManagerFragment extends Fragment {
             String valStr = input.getText().toString().trim();
             if (!valStr.isEmpty()) {
                 double newAmount = Double.parseDouble(valStr);
-                dbHelper.updateData(categories[categoryIndex], entryId, newAmount);
-                updateCardText(categoryIndex, dbHelper.getAmount(categories[categoryIndex]));
+                dbHelper.updateData(categoryName, entryId, newAmount);
                 adapter.remove(adapter.getItem(position));
-                adapter.insert(String.format("%.2f - %s", newAmount, history.get(position).get("date")), position);
+                adapter.insert(String.format(Locale.getDefault(), "%.2f - %s", newAmount, history.get(position).get("date")), position);
                 adapter.notifyDataSetChanged();
+                renderCategories();
                 updateBiggestExpense();
             }
         });
 
         builder.setNegativeButton("Delete", (dialog, which) -> {
-            dbHelper.deleteData(categories[categoryIndex], entryId);
-            updateCardText(categoryIndex, dbHelper.getAmount(categories[categoryIndex]));
+            dbHelper.deleteData(categoryName, entryId);
+            // Refresh total budget from DB and update UI
+            totalBudget = dbHelper.getTotalBudget();
+            updateTotalBudgetText();
+
             adapter.remove(adapter.getItem(position));
             adapter.notifyDataSetChanged();
+            renderCategories();
             updateBiggestExpense();
         });
 
@@ -298,30 +503,60 @@ public class BegetManagerFragment extends Fragment {
     private void updateBiggestExpense() {
         double max = 0;
         String maxCategory = "";
-        for (int i = 0; i < categories.length; i++) {
-            double val = dbHelper.getAmount(categories[i]);
+        List<Map<String, Object>> categories = dbHelper.getCategories();
+        for (Map<String, Object> cat : categories) {
+            String name = (String) cat.get("name");
+            double val = dbHelper.getAmount(name);
             if (val > max) {
                 max = val;
-                maxCategory = categories[i];
+                maxCategory = name;
             }
         }
         if (max > 0) {
-            biggestExpenseText.setText(String.format("%s: %.2f", maxCategory, max));
+            biggestExpenseText.setText(String.format(Locale.getDefault(), "%s: %s", maxCategory, formatCurrency(max)));
         } else {
             biggestExpenseText.setText("Biggest Expense");
         }
     }
 
-    private void updateCardText(int index, double amount) {
-        double percent = totalBudget > 0 ? (amount / (totalBudget + amount)) * 100 : 0.0;
-        cardTexts[index].setText(String.format("%.2f (%.1f%%)", amount, percent));
+    private void showCategoryMenu(View anchor, String categoryName) {
+        PopupMenu popup = new PopupMenu(requireContext(), anchor);
+        popup.getMenu().add(getString(R.string.action_delete));
+        popup.setOnMenuItemClickListener(item -> {
+            if ("Delete".contentEquals(item.getTitle())) {
+                confirmDeleteCategory(categoryName);
+                return true;
+            }
+            return false;
+        });
+        popup.show();
+    }
+
+    private String formatCurrency(double amount) {
+        NumberFormat nf = NumberFormat.getCurrencyInstance();
+        try {
+            nf.setCurrency(Currency.getInstance("ETB")); // Ethiopian Birr
+        } catch (Exception ignored) {}
+        return nf.format(amount);
+    }
+
+    private String formatAmountAndPercent(double spent, double goal) {
+        double percent;
+        if (goal > 0) {
+            percent = (spent / goal) * 100.0;
+        } else if (totalBudget > 0) {
+            percent = (spent / (totalBudget + spent)) * 100.0;
+        } else {
+            percent = 0.0;
+        }
+        return String.format(Locale.getDefault(), "%s (%.1f%%)", formatCurrency(spent), percent);
     }
 
     private void updateTotalBudgetText() {
         if (isHidden) {
             totalBudgetText.setText("****");
         } else {
-            totalBudgetText.setText(String.format("%.2f", totalBudget));
+            totalBudgetText.setText(String.format(Locale.getDefault(), "%.2f", totalBudget));
         }
     }
 }

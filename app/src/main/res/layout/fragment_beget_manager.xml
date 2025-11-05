@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="#FFFDFB">
+    android:background="?attr/colorSurface">
 
     <LinearLayout
         android:id="@+id/containerLayout"
@@ -16,375 +16,146 @@
         android:gravity="center_horizontal">
 
         <!-- TOTAL BUDGET -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/totalBegetCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:clickable="true"
             android:focusable="true"
-            app:cardCornerRadius="8dp"
-            app:cardBackgroundColor="#FBEAEA"
-            app:cardElevation="3dp">
+            app:cardUseCompatPadding="true"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/colorOutline"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical|center_horizontal"
-                android:padding="12dp">
+                android:orientation="vertical"
+                android:padding="16dp">
 
                 <TextView
-                    android:id="@+id/totalBegetText"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="TOTAL BUDGET"
-                    android:textStyle="bold"
-                    android:textSize="20sp"
-                    android:gravity="center"
-                    android:textColor="#000000" />
+                    android:text="@string/label_total_budget"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelLarge"/>
 
-                <!-- 🔹 Hide Button -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="4dp">
+
+                    <TextView
+                        android:id="@+id/totalBegetText"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="****"
+                        android:textStyle="bold"
+                        android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
+                        android:textColor="?attr/colorOnSurface"/>
+
+                    <!-- Hide Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/hideText"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Hide"
+                        android:visibility="gone"/>
+
+                    <!-- Show Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/showText"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Show"/>
+                </LinearLayout>
+
                 <TextView
-                    android:id="@+id/hideText"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="H"
-                    android:textStyle="bold"
-                    android:textSize="18sp"
-                    android:textColor="#D47F75"
-                    android:padding="8dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:background="?android:selectableItemBackgroundBorderless" />
-
-                <!-- 🔹 Show Button -->
-                <TextView
-                    android:id="@+id/showText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="S"
-                    android:textStyle="bold"
-                    android:textSize="18sp"
-                    android:textColor="#4CAF50"
-                    android:padding="8dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:background="?android:selectableItemBackgroundBorderless" />
-
+                    android:text="@string/hint_tap_add_long_press_edit"
+                    android:paddingTop="6dp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"/>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-
-        <!-- Relationship Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/relationshipCard"
+        <!-- SECTION: Categories header + Add button -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="8dp"
-            app:cardBackgroundColor="#CDE1BF"
-            app:cardElevation="3dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Relationship"
-                    android:textStyle="bold"
-                    android:textColor="#000000"/>
-
-                <TextView
-                    android:id="@+id/relationshipInput"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:text="0%"
-                    android:gravity="center"
-                    android:textStyle="bold"
-                    android:textColor="#000000"/>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Fitness Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/fitnessCard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="8dp"
-            app:cardBackgroundColor="#A8C9F0"
-            app:cardElevation="3dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Fitness"
-                    android:textStyle="bold"
-                    android:textColor="#000000"/>
-
-                <TextView
-                    android:id="@+id/fitnessInput"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:text="0%"
-                    android:gravity="center"
-                    android:textStyle="bold"
-                    android:textColor="#000000"/>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Tech/Course Supplies Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/techCard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="8dp"
-            app:cardBackgroundColor="#B78CBF"
-            app:cardElevation="3dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Tech/Course Supplies"
-                    android:textStyle="bold"
-                    android:textColor="#000000"/>
-
-                <TextView
-                    android:id="@+id/techInput"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:text="0%"
-                    android:gravity="center"
-                    android:textStyle="bold"
-                    android:textColor="#000000"/>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Social Friends Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/socialCard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="8dp"
-            app:cardBackgroundColor="#F7C96B"
-            app:cardElevation="3dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Social Friends"
-                    android:textStyle="bold"
-                    android:textColor="#000000"/>
-
-                <TextView
-                    android:id="@+id/socialInput"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:text="0%"
-                    android:gravity="center"
-                    android:textStyle="bold"
-                    android:textColor="#000000"/>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Unexpected/Emergency Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/unexpectedCard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="8dp"
-            app:cardBackgroundColor="#E78D8D"
-            app:cardElevation="3dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Unexpected/Emergency"
-                    android:textStyle="bold"
-                    android:textColor="#000000"/>
-
-                <TextView
-                    android:id="@+id/unexpectedInput"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:text="0%"
-                    android:gravity="center"
-                    android:textStyle="bold"
-                    android:textColor="#000000"/>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Transportation Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/transportCard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="8dp"
-            app:cardBackgroundColor="#C7808B"
-            app:cardElevation="3dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Transportation"
-                    android:textStyle="bold"
-                    android:textColor="#000000"/>
-
-                <TextView
-                    android:id="@+id/transportInput"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:text="0%"
-                    android:gravity="center"
-                    android:textStyle="bold"
-                    android:textColor="#000000"/>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Day Travel Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/dayTravelCard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="8dp"
-            app:cardBackgroundColor="#90EE90"
-            app:cardElevation="3dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Day Travel"
-                    android:textStyle="bold"
-                    android:textColor="#000000"/>
-
-                <TextView
-                    android:id="@+id/dayTravelInput"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:text="0%"
-                    android:gravity="center"
-                    android:textStyle="bold"
-                    android:textColor="#000000"/>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Church Donation Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/churchDonationCard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardBackgroundColor="#FFD700"
-            app:cardElevation="3dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Church Donation"
-                    android:textStyle="bold"
-                    android:textColor="#000000"/>
-
-                <TextView
-                    android:id="@+id/churchDonationInput"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:text="0%"
-                    android:gravity="center"
-                    android:textStyle="bold"
-                    android:textColor="#000000"/>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Biggest Expense Card -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="32dp"
-            app:cardCornerRadius="8dp"
-            app:cardBackgroundColor="#E8E0B3"
-            app:cardElevation="3dp">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingBottom="8dp">
 
             <TextView
-                android:id="@+id/biggestExpenseText"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Categories"
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                android:textColor="?attr/colorOnSurfaceVariant"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/addCategoryButton"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add"
+                app:icon="@android:drawable/ic_input_add"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"/>
+        </LinearLayout>
+
+        <!-- Dynamic categories are rendered here -->
+        <LinearLayout
+            android:id="@+id/categoriesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"/>
+
+        <!-- Biggest Expense Summary Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp"
+            app:cardUseCompatPadding="true"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/colorOutline"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Biggest Expense"
-                android:textSize="16sp"
-                android:textColor="#000000"
-                android:gravity="center"
-                android:padding="16dp"/>
-        </androidx.cardview.widget.CardView>
+                android:padding="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Biggest expense"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                    android:textColor="?attr/colorOnSurfaceVariant"/>
+
+                <TextView
+                    android:id="@+id/biggestExpenseText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Biggest Expense"
+                    android:paddingTop="4dp"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                    android:textColor="?attr/colorOnSurface"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </ScrollView>
