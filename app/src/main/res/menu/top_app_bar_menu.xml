@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_user_profile"
+        android:title="User Profile"
+        android:showAsAction="always"
+        app:actionViewClass="androidx.appcompat.widget.AppCompatTextView"/>
 
     <item
         android:id="@+id/action_toggle_theme"
@@ -11,5 +18,11 @@
         android:id="@+id/action_about"
         android:title="graph"
         android:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_logout"
+        android:title="Logout"
+        android:icon="@android:drawable/ic_menu_revert"
+        android:showAsAction="ifRoom"/>
 
 </menu>

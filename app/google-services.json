@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "278194991696",
+    "project_id": "budget-manager-5b03e",
+    "storage_bucket": "budget-manager-5b03e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:278194991696:android:67dc29dc2e77ec12c620d1",
+        "android_client_info": {
+          "package_name": "com.example.bagetmamanger2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "278194991696-android123456789.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.bagetmamanger2",
+            "certificate_hash": "A588410408D06716DFE3376887ACAD1923D57BE13A"
+          }
+        },
+        {
+          "client_id": "278194991696-eckbh3blg2vr8f9aa4l3vno4bjnijs8r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEU7sDogJKUvFdBumHfSkeDeDl6_92kRI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "278194991696-eckbh3blg2vr8f9aa4l3vno4bjnijs8r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

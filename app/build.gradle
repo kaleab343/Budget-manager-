@@ -1,9 +1,13 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
     signingConfigs {
+        debug {
+            // Default debug keystore - automatically configured
+        }
         release {
             // Placeholder signing config. Set credentials via environment variables or Gradle properties.
             // Option 1: Environment variables (recommended for CI)
@@ -51,13 +55,16 @@ android {
     }
 
     buildTypes {
+        debug {
+            debuggable true
+            signingConfig signingConfigs.debug
+        }
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
-
     }
 
     compileOptions {
@@ -74,6 +81,15 @@ dependencies {
 
     // ✅ MPAndroidChart for graph
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+    implementation libs.firebase.auth
+    
+    // Google Sign-In (Traditional approach - more reliable)
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
+    
+    // Credential Manager (New approach - backup)
+    implementation libs.credentials
+    implementation libs.credentials.play.services.auth
+    implementation libs.googleid
 
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit

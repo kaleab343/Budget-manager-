@@ -11,18 +11,32 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BagetMamanger2">
+        
+        <!-- Simple Login Activity - Now the launcher activity -->
         <activity
-            android:name=".prereation"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
+            android:name=".SimpleLoginActivity"
+            android:exported="true"
+            android:theme="@style/Theme.BagetMamanger2">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <!-- Original Login Activity - Keep as backup -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false"
+            android:theme="@style/Theme.BagetMamanger2" />
+        
+        <!-- Main Activity - Only accessible after login -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+            
+        <activity
+            android:name=".prereation"
+            android:exported="false" />
     </application>
 
 </manifest>

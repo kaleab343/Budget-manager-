@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TODO: Replace with your actual Web Client ID from Firebase Console -->
+    <!-- Get this from: Firebase Console > Authentication > Sign-in method > Google > Web SDK configuration -->
+    <!-- IMPORTANT: Replace this with your actual Web Client ID from Firebase Console -->
+    <!-- Go to: Firebase Console > Project Settings > General > Web apps > Your app > Config -->
+    <!-- Look for "authDomain" and get the client ID from there -->
+    <!-- Replace with your actual Web Client ID from Google Cloud Console -->
+    <!-- Expected format: 278527588996-[random-string].apps.googleusercontent.com -->
+    <!-- Get it from: https://console.cloud.google.com/apis/credentials?project=bagetmamanger-2 -->
+    <string name="web_client_id">278194991696-eckbh3blg2vr8f9aa4l3vno4bjnijs8r.apps.googleusercontent.com</string>
+</resources>
