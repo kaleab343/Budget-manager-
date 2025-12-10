@@ -55,11 +55,20 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Check if user is authenticated
+        // Check if coming from bypass or authenticated user
+        boolean bypassMode = getIntent().getBooleanExtra("BYPASS_MODE", false);
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser == null) {
+        
+        if (currentUser == null && !bypassMode) {
+            // No authentication and not bypass mode - redirect to login
             redirectToLogin();
             return;
+        }
+        
+        if (bypassMode) {
+            // Running in bypass mode - show toast and log
+            Toast.makeText(this, "Running in Demo Mode", Toast.LENGTH_SHORT).show();
+            android.util.Log.d("MainActivity", "Running in bypass mode - no authentication required");
         }
 
         if (savedInstanceState == null) {
@@ -68,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void redirectToLogin() {
-        Intent intent = new Intent(this, LoginActivity.class);
+        Intent intent = new Intent(this, SimpleLoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
@@ -88,8 +97,33 @@ public class MainActivity extends AppCompatActivity {
         
         // Setup user avatar if user is logged in
         FirebaseUser currentUser = mAuth.getCurrentUser();
+        boolean bypassMode = getIntent().getBooleanExtra("BYPASS_MODE", false);
+        
         if (currentUser != null) {
             setupUserAvatar(menu, currentUser);
+        } else if (bypassMode) {
+            // Show demo user avatar for bypass mode
+            MenuItem userMenuItem = menu.findItem(R.id.action_user_profile);
+            if (userMenuItem != null) {
+                TextView userAvatarView = (TextView) userMenuItem.getActionView();
+                if (userAvatarView != null) {
+                    userAvatarView.setText("DU"); // Demo User
+                    userAvatarView.setTextSize(12);
+                    userAvatarView.setTextColor(getResources().getColor(android.R.color.white, getTheme()));
+                    userAvatarView.setGravity(android.view.Gravity.CENTER);
+                    userAvatarView.setWidth(96);
+                    userAvatarView.setHeight(96);
+                    
+                    GradientDrawable background = new GradientDrawable();
+                    background.setShape(GradientDrawable.OVAL);
+                    background.setColor(getResources().getColor(com.google.android.material.R.color.design_default_color_primary, getTheme()));
+                    userAvatarView.setBackground(background);
+                    
+                    userAvatarView.setOnClickListener(v -> {
+                        Toast.makeText(this, "Demo User - No Authentication", Toast.LENGTH_SHORT).show();
+                    });
+                }
+            }
         }
         
         return true;

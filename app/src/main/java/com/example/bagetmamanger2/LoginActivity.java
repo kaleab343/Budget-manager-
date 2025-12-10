@@ -68,6 +68,18 @@ public class LoginActivity extends AppCompatActivity {
     private void initUI() {
         signInButton = findViewById(R.id.sign_in_button);
         signInButton.setOnClickListener(v -> signInWithGoogle());
+        
+        // Add skip login button
+        MaterialButton skipLoginButton = findViewById(R.id.skip_login_button);
+        skipLoginButton.setOnClickListener(v -> {
+            // Bypass login and go directly to main activity
+            Toast.makeText(this, "Bypassing login - Demo mode", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("BYPASS_MODE", true); // Flag to indicate bypass
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
     }
     
     private void signInWithGoogle() {

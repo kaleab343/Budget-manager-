@@ -53,7 +53,15 @@ public class SimpleLoginActivity extends AppCompatActivity {
         signInButton.setOnClickListener(v -> signIn());
 
         MaterialButton skipLoginButton = findViewById(R.id.skip_login_button);
-        skipLoginButton.setOnClickListener(v -> navigateToMainActivity());
+        skipLoginButton.setOnClickListener(v -> {
+            // Bypass login and go directly to main activity
+            Toast.makeText(this, "Bypassing login - Demo mode", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("BYPASS_MODE", true); // Flag to indicate bypass
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
 
         // Check if user is already signed in
         FirebaseUser currentUser = mAuth.getCurrentUser();
